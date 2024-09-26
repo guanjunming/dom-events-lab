@@ -9,10 +9,10 @@ let num1 = null;
 let num2 = null;
 let operator = null;
 
-const calculate = (a, b, operation) => {
-  //a = Number(a);
-  //b = Number(b);
+let clearDisplayContent = false;
 
+const calculate = (a, b, operation) => {
+  //console.log(`a:${a}, b:${0}, op:${operation}`);
   switch (operation) {
     case "+":
       return a + b;
@@ -32,16 +32,21 @@ const clearDisplay = () => {
   displayEl.textContent = "0";
 };
 
+const updateDisplay = (value) => {
+  if (displayEl.textContent === "0" || clearDisplayContent) {
+    displayEl.textContent = "";
+    clearDisplayContent = false;
+  }
+
+  displayEl.textContent += value;
+};
+
 const handleNumberClick = (e) => {
   if (displayEl.textContent.length >= MAX_DIGITS) {
     return;
   }
 
-  if (displayEl.textContent === "0") {
-    displayEl.textContent = "";
-  }
-
-  displayEl.textContent += e.target.textContent;
+  updateDisplay(e.target.textContent);
 };
 
 const handleOperatorClick = (e) => {
@@ -50,20 +55,31 @@ const handleOperatorClick = (e) => {
   if (op === "C") {
     clearDisplay();
   } else {
+    if (num1 === null) {
+      num1 = Number(displayEl.textContent);
+    } else {
+      num2 = Number(displayEl.textContent);
+      const result = calculate(num1, num2, operator);
+      displayEl.textContent = result;
+      num1 = result;
+    }
+
+    operator = op;
+    clearDisplayContent = true;
   }
 };
 
 const handleEqualsClick = () => {
-  if (num1 === null || num2 === null || operator === null) {
+  if (num1 === null || operator === null) {
     return;
   }
 
+  num2 = Number(displayEl.textContent);
   const result = calculate(num1, num2, operator);
   displayEl.textContent = result;
-
   num1 = result;
-  num2 = null;
-  operator = null;
+
+  clearDisplayContent = true;
 };
 
 numberBtns.forEach((button) => button.addEventListener("click", handleNumberClick));
