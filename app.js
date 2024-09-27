@@ -91,7 +91,7 @@ const handleEqualsClick = () => {
 
   num1 = null;
   operator = null;
-  waitForNum2 = false;
+  waitForNum2 = true;
 
   printStatus();
 };
