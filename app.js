@@ -6,39 +6,39 @@ const displayEl = document.querySelector(".display");
 const MAX_DIGITS = 16;
 
 let num1 = null;
-let num2 = null;
 let operator = null;
+let waitForNum2 = false;
 
-let clearDisplayContent = false;
+function printStatus() {
+  console.log("num1: ", num1, "operator", operator, "waitForNum2", waitForNum2);
+}
 
 const calculate = (a, b, operation) => {
-  //console.log(`a:${a}, b:${0}, op:${operation}`);
+  console.log(`a:${a}, b:${b}, op:${operation}`);
+  let result;
   switch (operation) {
     case "+":
-      return a + b;
+      result = a + b;
+      break;
     case "-":
-      return a - b;
+      result = a - b;
+      break;
     case "*":
-      return a * b;
+      result = a * b;
+      break;
     case "/":
-      return b !== 0 ? a / b : "Error";
+      result = b !== 0 ? a / b : "Error";
+      break;
   }
+  console.log(result);
+  return result;
 };
 
 const clearDisplay = () => {
   num1 = null;
-  num2 = null;
   operator = null;
   displayEl.textContent = "0";
-};
-
-const updateDisplay = (value) => {
-  if (displayEl.textContent === "0" || clearDisplayContent) {
-    displayEl.textContent = "";
-    clearDisplayContent = false;
-  }
-
-  displayEl.textContent += value;
+  waitForNum2 = false;
 };
 
 const handleNumberClick = (e) => {
@@ -46,7 +46,16 @@ const handleNumberClick = (e) => {
     return;
   }
 
-  updateDisplay(e.target.textContent);
+  const digit = e.target.textContent;
+
+  if (waitForNum2) {
+    displayEl.textContent = digit;
+    waitForNum2 = false;
+  } else {
+    displayEl.textContent = displayEl.textContent === "0" ? digit : displayEl.textContent + digit;
+  }
+
+  printStatus();
 };
 
 const handleOperatorClick = (e) => {
@@ -57,33 +66,36 @@ const handleOperatorClick = (e) => {
   } else {
     if (num1 === null) {
       num1 = Number(displayEl.textContent);
-    } else {
-      num2 = Number(displayEl.textContent);
+    } else if (!waitForNum2) {
+      const num2 = Number(displayEl.textContent);
       const result = calculate(num1, num2, operator);
       displayEl.textContent = result;
       num1 = result;
     }
 
     operator = op;
-    clearDisplayContent = true;
+    waitForNum2 = true;
+
+    printStatus();
   }
 };
 
 const handleEqualsClick = () => {
-  if (num1 === null || operator === null) {
+  if (operator === null || waitForNum2) {
     return;
   }
 
-  num2 = Number(displayEl.textContent);
+  const num2 = Number(displayEl.textContent);
   const result = calculate(num1, num2, operator);
   displayEl.textContent = result;
-  num1 = result;
 
-  clearDisplayContent = true;
+  num1 = null;
+  operator = null;
+  waitForNum2 = false;
+
+  printStatus();
 };
 
 numberBtns.forEach((button) => button.addEventListener("click", handleNumberClick));
 operatorBtns.forEach((button) => button.addEventListener("click", handleOperatorClick));
 equalsBtn.addEventListener("click", handleEqualsClick);
-
-clearDisplay();
