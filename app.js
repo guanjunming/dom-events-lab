@@ -3,19 +3,14 @@ const operatorBtns = document.querySelectorAll(".operator");
 const equalsBtn = document.querySelector(".equals");
 const displayEl = document.querySelector(".display");
 
-const MAX_DIGITS = 16;
+const MAX_DIGITS = 15;
 
 let num1 = null;
 let operator = null;
 let waitForNum2 = false;
 let hasError = false;
 
-function printStatus() {
-  console.log("num1: ", num1, "operator", operator, "waitForNum2", waitForNum2);
-}
-
 const calculate = (a, b, operation) => {
-  console.log(`a:${a}, b:${b}, op:${operation}`);
   let result;
   switch (operation) {
     case "+":
@@ -36,7 +31,6 @@ const calculate = (a, b, operation) => {
       }
       break;
   }
-  console.log(result);
   return result;
 };
 
@@ -49,7 +43,7 @@ const clearDisplay = () => {
 };
 
 const handleNumberClick = (e) => {
-  if (hasError || displayEl.textContent.length >= MAX_DIGITS) {
+  if (hasError) {
     return;
   }
 
@@ -58,11 +52,9 @@ const handleNumberClick = (e) => {
   if (waitForNum2) {
     displayEl.textContent = digit;
     waitForNum2 = false;
-  } else {
+  } else if (displayEl.textContent.length < MAX_DIGITS) {
     displayEl.textContent = displayEl.textContent === "0" ? digit : displayEl.textContent + digit;
   }
-
-  printStatus();
 };
 
 const handleOperatorClick = (e) => {
@@ -82,8 +74,6 @@ const handleOperatorClick = (e) => {
 
     operator = op;
     waitForNum2 = true;
-
-    printStatus();
   }
 };
 
@@ -98,9 +88,7 @@ const handleEqualsClick = () => {
 
   num1 = null;
   operator = null;
-  waitForNum2 = true;
-
-  printStatus();
+  waitForNum2 = true; // in order to reset display
 };
 
 numberBtns.forEach((button) => button.addEventListener("click", handleNumberClick));
