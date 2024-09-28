@@ -3,11 +3,13 @@ const operatorBtns = document.querySelectorAll(".operator");
 const equalsBtn = document.querySelector(".equals");
 const displayEl = document.querySelector(".display");
 
-const MAX_DIGITS = 15;
+const MAX_INPUT_DIGITS = 16;
+const MAX_DECIMAL_DIGITS = 15;
+const MAX_EXPONENTIAL_DECIMALS = 12;
 
 let num1 = null;
 let operator = null;
-let waitForNum2 = false;
+let waitingForNum2 = false;
 let hasError = false;
 
 const calculate = (a, b, operation) => {
@@ -38,9 +40,28 @@ const clearDisplay = () => {
   num1 = null;
   operator = null;
   displayEl.textContent = "0";
-  waitForNum2 = false;
+  waitingForNum2 = false;
   hasError = false;
 };
+
+// https://stackoverflow.com/questions/3612744/remove-insignificant-trailing-zeros-from-a-number
+function formatExponential(num) {
+  return num.toExponential(MAX_EXPONENTIAL_DECIMALS).replace(/\.?0+e/, "e"); // Remove trailing zeros
+}
+
+function formatResult(result) {
+  const resultString = result.toString();
+
+  if (resultString.includes("e")) {
+    return formatExponential(result);
+  } else if (resultString.includes(".")) {
+    // if decimal places exceed max digits, format to exponential
+    const decimals = resultString.split(".")[1];
+    return decimals.length > MAX_DECIMAL_DIGITS ? formatExponential(result) : result;
+  } else {
+    return result;
+  }
+}
 
 const handleNumberClick = (e) => {
   if (hasError) {
@@ -49,10 +70,10 @@ const handleNumberClick = (e) => {
 
   const digit = e.target.textContent;
 
-  if (waitForNum2) {
+  if (waitingForNum2) {
     displayEl.textContent = digit;
-    waitForNum2 = false;
-  } else if (displayEl.textContent.length < MAX_DIGITS) {
+    waitingForNum2 = false;
+  } else if (displayEl.textContent.length < MAX_INPUT_DIGITS) {
     displayEl.textContent = displayEl.textContent === "0" ? digit : displayEl.textContent + digit;
   }
 };
@@ -65,30 +86,30 @@ const handleOperatorClick = (e) => {
   } else if (!hasError) {
     if (num1 === null) {
       num1 = Number(displayEl.textContent);
-    } else if (!waitForNum2) {
+    } else if (!waitingForNum2) {
       const num2 = Number(displayEl.textContent);
       const result = calculate(num1, num2, operator);
-      displayEl.textContent = result;
+      displayEl.textContent = formatResult(result);
       num1 = result;
     }
 
     operator = op;
-    waitForNum2 = true;
+    waitingForNum2 = true;
   }
 };
 
 const handleEqualsClick = () => {
-  if (hasError || operator === null || waitForNum2) {
+  if (hasError || operator === null || waitingForNum2) {
     return;
   }
 
   const num2 = Number(displayEl.textContent);
   const result = calculate(num1, num2, operator);
-  displayEl.textContent = result;
+  displayEl.textContent = formatResult(result);
 
   num1 = null;
   operator = null;
-  waitForNum2 = true; // in order to reset display
+  waitingForNum2 = true; // in order to reset display
 };
 
 numberBtns.forEach((button) => button.addEventListener("click", handleNumberClick));
