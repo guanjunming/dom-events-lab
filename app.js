@@ -50,6 +50,10 @@ function formatExponential(num) {
 }
 
 function formatResult(result) {
+  if (isNaN(result)) {
+    return result;
+  }
+
   const resultString = result.toString();
 
   if (resultString.includes("e")) {
@@ -65,7 +69,7 @@ function formatResult(result) {
 
 const handleNumberClick = (e) => {
   if (hasError) {
-    return;
+    clearDisplay();
   }
 
   const digit = e.target.textContent;
