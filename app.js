@@ -1,6 +1,4 @@
-const numberBtns = document.querySelectorAll(".number");
-const operatorBtns = document.querySelectorAll(".operator");
-const equalsBtn = document.querySelector(".equals");
+const calculator = document.querySelector("#calculator");
 const displayEl = document.querySelector(".display");
 
 const MAX_INPUT_DIGITS = 16;
@@ -116,6 +114,14 @@ const handleEqualsClick = () => {
   waitingForNum2 = true; // in order to reset display
 };
 
-numberBtns.forEach((button) => button.addEventListener("click", handleNumberClick));
-operatorBtns.forEach((button) => button.addEventListener("click", handleOperatorClick));
-equalsBtn.addEventListener("click", handleEqualsClick);
+const handleButtonClick = (e) => {
+  if (e.target.classList.contains("number")) {
+    handleNumberClick(e);
+  } else if (e.target.classList.contains("operator")) {
+    handleOperatorClick(e);
+  } else if (e.target.classList.contains("equals")) {
+    handleEqualsClick();
+  }
+};
+
+calculator.addEventListener("click", handleButtonClick);
